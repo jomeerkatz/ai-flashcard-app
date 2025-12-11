@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: postgres
+    container_name: postgres-instance-flascards
+    environment:
+      POSTGRES_DB: flashcards
+      POSTGRES_USER: flashcards
+      POSTGRES_PASSWORD: flashcards
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data-flashcards:/var/lib/postgresql/data
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    container_name: keycloak-instance-flashcards
+    ports:
+      - "9090:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: h2-file
+    volumes:
+      - keycloak-data-flashcards:/opt/keycloak/data/
+    command:
+        - start-dev
+        - --db=dev-file
+
+volumes:
+  postgres-data-flashcards:
+  keycloak-data-flashcards:
