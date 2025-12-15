@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Flashcards Frontend
 
-## Getting Started
+Frontend application for the AI Flashcards app, built with Next.js and NextAuth.
 
-First, run the development server:
+## Environment Variables
+
+The following environment variables are required:
+
+### Authentication (Keycloak)
+
+- `KEYCLOAK_CLIENT_ID` - Keycloak client ID
+- `KEYCLOAK_CLIENT_SECRET` - Keycloak client secret
+- `KEYCLOAK_ISSUER` - Keycloak issuer URL (e.g., `https://keycloak.example.com/realms/your-realm`)
+- `NEXTAUTH_SECRET` - Secret for NextAuth session encryption
+
+### Backend API
+
+- `NEXT_PUBLIC_BACKEND_URL` - Backend API base URL (defaults to `http://localhost:8080` if not set)
+
+### Optional
+
+- `DEBUG_AUTH` - Set to `"true"` to enable authentication debug logging
+
+## Features
+
+- **Automatic User Sync**: When a user signs in or signs up, the frontend automatically syncs the user to the backend by calling the `/api/users` endpoint with the access token. This ensures the user exists in the database.
+
+## Development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
