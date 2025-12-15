@@ -1,4 +1,4 @@
-package jomeerkatz.project.ai_flashcards.domain;
+package jomeerkatz.project.ai_flashcards.domain.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserCreateUpdateRequest {
-    private String keycloakId;
+public class UserDto {
+    private Long id;
 }

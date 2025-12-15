@@ -3,7 +3,6 @@ package jomeerkatz.project.ai_flashcards.services.impl;
 import jakarta.transaction.Transactional;
 import jomeerkatz.project.ai_flashcards.domain.UserCreateUpdateRequest;
 import jomeerkatz.project.ai_flashcards.domain.entities.User;
-import jomeerkatz.project.ai_flashcards.exceptions.UserNotFoundException;
 import jomeerkatz.project.ai_flashcards.repositories.UserRepository;
 import jomeerkatz.project.ai_flashcards.services.UserService;
 import lombok.AllArgsConstructor;
@@ -21,17 +20,11 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public User createOrFindUser(UserCreateUpdateRequest userCreateUpdateRequest) {
-        String keycloakId = userCreateUpdateRequest.getKeycloakId();
+    public User createOrFindUser(User user) {
+        String keycloakId = user.getKeycloakId();
         try {
             return userRepository.findByKeycloakId(keycloakId).orElseGet(() ->
-                    userRepository.save(
-                            User.builder()
-                                    .keycloakId(keycloakId)
-                                    .createdAt(LocalDateTime.now())
-                                    .updatedAt(LocalDateTime.now())
-                                    .build()
-                    ));
+                    userRepository.save(user));
         } catch (DataIntegrityViolationException ex) {
             return userRepository.findByKeycloakId(keycloakId).orElseThrow(() ->
                     new IllegalStateException(
