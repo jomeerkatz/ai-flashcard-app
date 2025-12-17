@@ -5,6 +5,7 @@ import jomeerkatz.project.ai_flashcards.domain.dtos.FolderDto;
 import jomeerkatz.project.ai_flashcards.domain.entities.Folder;
 import jomeerkatz.project.ai_flashcards.domain.entities.User;
 import jomeerkatz.project.ai_flashcards.exceptions.FolderAlreadyExistsException;
+import jomeerkatz.project.ai_flashcards.exceptions.FolderAlreadyExistsException;
 import jomeerkatz.project.ai_flashcards.exceptions.UserNotFoundException;
 import jomeerkatz.project.ai_flashcards.mappers.FolderMapper;
 import jomeerkatz.project.ai_flashcards.repositories.FolderRepository;
@@ -28,7 +29,6 @@ public class FolderServiceImpl implements FolderService {
 
     private final FolderRepository folderRepository;
     private final UserRepository userRepository;
-    private final FolderMapper foldermapper;
 
     @Override
     public Folder createFolder(User user, FolderCreateUpdateRequest folderCreateUpdateRequest) {

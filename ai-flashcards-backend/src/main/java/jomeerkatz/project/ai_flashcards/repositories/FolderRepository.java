@@ -1,5 +1,6 @@
 package jomeerkatz.project.ai_flashcards.repositories;
 
+import jomeerkatz.project.ai_flashcards.domain.FolderCreateUpdateRequest;
 import jomeerkatz.project.ai_flashcards.domain.entities.Folder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
