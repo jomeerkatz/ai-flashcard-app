@@ -42,11 +42,6 @@ public class FolderController {
     @GetMapping
     public Page<FolderDto> getAllFolder(@AuthenticationPrincipal Jwt jwt, @PageableDefault(size = 5, page = 0) Pageable pageable) {
         User user = JwtMapper.toUser(jwt);
-
-        log.info("❌❌❌❌ User object: {}", user);
-        log.debug("❌❌❌❌ User keycloakId: {}", user.getKeycloakId());
-
-
         return folderService.getAllFolders(user, pageable)
                 .map(folderMapper::toFolderDto);
     }
