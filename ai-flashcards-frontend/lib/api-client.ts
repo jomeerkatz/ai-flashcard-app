@@ -1,4 +1,5 @@
 import { UserDto } from "@/types/user";
+import { FolderDto, PageResponse } from "@/types/folder";
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
@@ -44,6 +45,122 @@ export async function syncUserToBackend(
 
     const userData: UserDto = await response.json();
     return userData;
+  } catch (error) {
+    // Re-throw ApiError as-is
+    if (error && typeof error === "object" && "message" in error) {
+      throw error;
+    }
+
+    // Handle network errors
+    const networkError: ApiError = {
+      message:
+        error instanceof Error
+          ? `Network error: ${error.message}`
+          : "Network error: Failed to connect to backend",
+    };
+    throw networkError;
+  }
+}
+
+/**
+ * Fetches all folders for the authenticated user with pagination.
+ * @param accessToken - The JWT access token from Keycloak
+ * @param page - The page number (0-indexed)
+ * @param size - The number of items per page
+ * @returns The paginated folder data from the backend
+ * @throws {ApiError} If the request fails with a non-2xx status
+ */
+export async function getAllFolders(
+  accessToken: string,
+  page: number,
+  size: number
+): Promise<PageResponse<FolderDto>> {
+  try {
+    const response = await fetch(
+      `${BACKEND_URL}/api/folders?page=${page}&size=${size}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const error: ApiError = {
+        message: `Failed to fetch folders: ${response.statusText}`,
+        status: response.status,
+      };
+
+      // Handle specific error cases
+      if (response.status === 401) {
+        error.message = "Authentication failed. Please sign in again.";
+      } else if (response.status >= 500) {
+        error.message = "Server error. Please try again later.";
+      }
+
+      throw error;
+    }
+
+    const folderData: PageResponse<FolderDto> = await response.json();
+    return folderData;
+  } catch (error) {
+    // Re-throw ApiError as-is
+    if (error && typeof error === "object" && "message" in error) {
+      throw error;
+    }
+
+    // Handle network errors
+    const networkError: ApiError = {
+      message:
+        error instanceof Error
+          ? `Network error: ${error.message}`
+          : "Network error: Failed to connect to backend",
+    };
+    throw networkError;
+  }
+}
+
+/**
+ * Creates a new folder for the authenticated user.
+ * @param accessToken - The JWT access token from Keycloak
+ * @param name - The name of the folder to create
+ * @returns The created folder data from the backend
+ * @throws {ApiError} If the request fails with a non-2xx status
+ */
+export async function createFolder(
+  accessToken: string,
+  name: string
+): Promise<FolderDto> {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/folders`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ name }),
+    });
+
+    if (!response.ok) {
+      const error: ApiError = {
+        message: `Failed to create folder: ${response.statusText}`,
+        status: response.status,
+      };
+
+      // Handle specific error cases
+      if (response.status === 401) {
+        error.message = "Authentication failed. Please sign in again.";
+      } else if (response.status >= 500) {
+        error.message = "Server error. Please try again later.";
+      }
+
+      throw error;
+    }
+
+    const folderData: FolderDto = await response.json();
+    return folderData;
   } catch (error) {
     // Re-throw ApiError as-is
     if (error && typeof error === "object" && "message" in error) {

@@ -2,6 +2,7 @@
 
 import { useSession, signIn } from "next-auth/react";
 import { useState } from "react";
+import Link from "next/link";
 import UserDropdown from "./UserDropdown";
 
 export default function Header() {
@@ -27,9 +28,11 @@ export default function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <h1 className="text-xl font-bold text-white tracking-tight">
-              AI Flashcards
-            </h1>
+            <Link href="/">
+              <h1 className="text-xl font-bold text-white tracking-tight cursor-pointer hover:text-orange-500 transition-colors duration-200">
+                AI Flashcards
+              </h1>
+            </Link>
           </div>
 
           {/* Auth Section */}

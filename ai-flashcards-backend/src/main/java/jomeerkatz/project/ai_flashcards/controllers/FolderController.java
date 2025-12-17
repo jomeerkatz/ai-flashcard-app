@@ -17,10 +17,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import org.slf4j.Logger;
@@ -35,7 +32,7 @@ public class FolderController {
     private final FolderMapper folderMapper;
 
     @PostMapping
-    public ResponseEntity<FolderDto> createFolder(@AuthenticationPrincipal Jwt jwt, @Valid FolderCreateUpdateRequestDto folderCreateUpdateRequestDto) {
+    public ResponseEntity<FolderDto> createFolder(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody FolderCreateUpdateRequestDto folderCreateUpdateRequestDto) {
         User newUser = JwtMapper.toUser(jwt);
         FolderCreateUpdateRequest folderCreateUpdateRequest = folderMapper.toFolderCreateUpdateRequest(folderCreateUpdateRequestDto);
         Folder savedFolder = folderService.createFolder(newUser, folderCreateUpdateRequest);

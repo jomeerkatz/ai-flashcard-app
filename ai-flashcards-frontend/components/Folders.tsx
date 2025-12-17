@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { getAllFolders } from "@/lib/api-client";
+import { getAllFolders, createFolder } from "@/lib/api-client";
 import { FolderDto, PageResponse } from "@/types/folder";
 
 export default function Folders() {
@@ -12,6 +12,10 @@ export default function Folders() {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const pageSize = 5;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [folderName, setFolderName] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "authenticated" && session?.accessToken) {
@@ -50,6 +54,46 @@ export default function Folders() {
   const handleNextPage = () => {
     if (folders && !folders.last) {
       setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setFolderName("");
+    setCreateError(null);
+  };
+
+  const handleCreateFolder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!session?.accessToken) return;
+    
+    // Validate folder name is not empty
+    if (!folderName.trim()) {
+      setCreateError("Folder name cannot be blank");
+      return;
+    }
+
+    try {
+      setIsCreating(true);
+      setCreateError(null);
+      
+      await createFolder(session.accessToken, folderName.trim());
+      
+      // Refresh folders list
+      await fetchFolders(currentPage);
+      
+      // Close modal and reset form
+      handleCloseModal();
+    } catch (err) {
+      console.error("Failed to create folder:", err);
+      setCreateError(
+        err && typeof err === "object" && "message" in err
+          ? (err.message as string)
+          : "Failed to create folder. Please try again."
+      );
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -112,6 +156,7 @@ export default function Folders() {
             My Folders
           </h1>
           <button
+            onClick={() => setIsModalOpen(true)}
             className="px-6 py-2.5 bg-transparent border-2 border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-black font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-black uppercase tracking-wide text-sm"
             aria-label="Create new folder"
           >
@@ -164,15 +209,103 @@ export default function Folders() {
             <p className="text-slate-400 text-lg mb-6">
               You don't have any folders yet.
             </p>
-            <button
-              className="px-6 py-2.5 bg-transparent border-2 border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-black font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-black uppercase tracking-wide text-sm"
-              aria-label="Create new folder"
-            >
-              Create Your First Folder
-            </button>
           </div>
         )}
       </div>
+
+      {/* Create Folder Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div className="fixed inset-0 bg-black/80" />
+          
+          {/* Modal Container */}
+          <div className="relative bg-black border-2 border-orange-500 max-w-md w-full mx-4 shadow-xl">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b-2 border-slate-900">
+              <h2 className="text-2xl font-bold text-white uppercase tracking-wide">
+                Create New Folder
+              </h2>
+              <button
+                onClick={handleCloseModal}
+                className="text-slate-400 hover:text-orange-500 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-black p-1"
+                aria-label="Close modal"
+                disabled={isCreating}
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <form onSubmit={handleCreateFolder} className="p-6">
+              <div className="mb-6">
+                <label
+                  htmlFor="folder-name"
+                  className="block text-sm font-semibold text-white uppercase tracking-wide mb-2"
+                >
+                  Folder Name
+                </label>
+                <input
+                  id="folder-name"
+                  type="text"
+                  value={folderName}
+                  onChange={(e) => {
+                    setFolderName(e.target.value);
+                    setCreateError(null);
+                  }}
+                  placeholder="Enter folder name"
+                  className="w-full px-4 py-3 bg-slate-900 border-2 border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-black transition-all duration-200"
+                  disabled={isCreating}
+                  autoFocus
+                />
+                {createError && (
+                  <p className="mt-2 text-sm text-red-400 font-semibold">
+                    {createError}
+                  </p>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex items-center justify-end gap-4">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  disabled={isCreating}
+                  className="px-6 py-2.5 bg-transparent border-2 border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-black disabled:border-slate-800 disabled:text-slate-600 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-slate-600 font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-black uppercase tracking-wide text-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={!folderName.trim() || isCreating}
+                  className="px-6 py-2.5 bg-transparent border-2 border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-black disabled:border-slate-800 disabled:text-slate-600 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-slate-600 font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-black uppercase tracking-wide text-sm flex items-center gap-2"
+                >
+                  {isCreating ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    "Create"
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

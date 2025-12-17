@@ -1,9 +1,11 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function Hero() {
   const { data: session, status } = useSession();
+  const router = useRouter();
 
   if (status === "loading") {
     return (
@@ -29,6 +31,13 @@ export default function Hero() {
           <p className="text-lg sm:text-xl text-slate-400 mb-8">
             Ready to continue your learning journey?
           </p>
+          <button
+            onClick={() => router.push("/folders")}
+            className="px-10 py-4 bg-transparent border-2 border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-black font-bold text-lg uppercase tracking-wider transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-black"
+            aria-label="View folders"
+          >
+            View Folders
+          </button>
         </div>
       </section>
     );
