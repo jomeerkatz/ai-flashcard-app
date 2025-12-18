@@ -1,7 +1,9 @@
 package jomeerkatz.project.ai_flashcards.controllers;
 
 import jakarta.validation.Valid;
+import jomeerkatz.project.ai_flashcards.domain.CardCreateUpdateRequest;
 import jomeerkatz.project.ai_flashcards.domain.FolderCreateUpdateRequest;
+import jomeerkatz.project.ai_flashcards.domain.dtos.CardCreateUpdateRequestDto;
 import jomeerkatz.project.ai_flashcards.domain.dtos.CardDto;
 import jomeerkatz.project.ai_flashcards.domain.dtos.FolderCreateUpdateRequestDto;
 import jomeerkatz.project.ai_flashcards.domain.dtos.FolderDto;
@@ -18,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -53,5 +56,29 @@ public class FolderController {
                                              @PathVariable(name = "folderId") Long folderId,
                                              @PageableDefault(size = 10, page = 0) Pageable pageable) {
         return cardService.getAllCards(JwtMapper.toUser(jwt), folderId, pageable).map(cardMapper::toDto);
+    }
+
+    @PostMapping(path = "/{folderId}/cards")
+    public ResponseEntity<CardDto> createCard(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable(name = "folderId") Long folderId,
+            @Valid @RequestBody CardCreateUpdateRequestDto cardCreateUpdateRequestDto
+            ) {
+        User user = JwtMapper.toUser(jwt);
+        CardCreateUpdateRequest cardCreateUpdateRequest = cardMapper.toCardCreateUpdateRequest(cardCreateUpdateRequestDto);
+        return ResponseEntity.ok(cardMapper.toDto(cardService.createCard(user, folderId, cardCreateUpdateRequest)));
+    }
+
+    @PutMapping(path = "/{folder}/cards/{cardId}")
+    public ResponseEntity<Void> updateCard(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable(name = "folderId") Long folderId,
+            @PathVariable(name = "cardId") Long cardId,
+            @Valid @RequestBody CardCreateUpdateRequestDto cardCreateUpdateRequestDto
+    ) {
+        User user = JwtMapper.toUser(jwt);
+        CardCreateUpdateRequest cardCreateUpdateRequest = cardMapper.toCardCreateUpdateRequest(cardCreateUpdateRequestDto);
+        cardService.updateCard(user, folderId, cardCreateUpdateRequest, cardId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
