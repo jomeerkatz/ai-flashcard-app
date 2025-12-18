@@ -242,3 +242,68 @@ export async function getAllCardsOfFolder(
     throw networkError;
   }
 }
+
+/**
+ * Creates a new card in a specific folder.
+ * @param accessToken - The JWT access token from Keycloak
+ * @param folderId - The ID of the folder
+ * @param question - The question text for the card
+ * @param answer - The answer text for the card
+ * @returns The created card data from the backend
+ * @throws {ApiError} If the request fails with a non-2xx status
+ */
+export async function createCard(
+  accessToken: string,
+  folderId: number,
+  question: string,
+  answer: string
+): Promise<CardDto> {
+  try {
+    const response = await fetch(
+      `${BACKEND_URL}/api/folders/${folderId}/cards`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ question, answer }),
+      }
+    );
+
+    if (!response.ok) {
+      const error: ApiError = {
+        message: `Failed to create card: ${response.statusText}`,
+        status: response.status,
+      };
+
+      // Handle specific error cases
+      if (response.status === 401) {
+        error.message = "Authentication failed. Please sign in again.";
+      } else if (response.status === 404) {
+        error.message = "Folder not found.";
+      } else if (response.status >= 500) {
+        error.message = "Server error. Please try again later.";
+      }
+
+      throw error;
+    }
+
+    const cardData: CardDto = await response.json();
+    return cardData;
+  } catch (error) {
+    // Re-throw ApiError as-is
+    if (error && typeof error === "object" && "message" in error) {
+      throw error;
+    }
+
+    // Handle network errors
+    const networkError: ApiError = {
+      message:
+        error instanceof Error
+          ? `Network error: ${error.message}`
+          : "Network error: Failed to connect to backend",
+    };
+    throw networkError;
+  }
+}
