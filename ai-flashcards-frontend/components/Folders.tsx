@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { getAllFolders, createFolder } from "@/lib/api-client";
 import { FolderDto, PageResponse } from "@/types/folder";
 import EditFolderModal from "@/components/EditFolderModal";
+import DeleteFolderModal from "@/components/DeleteFolderModal";
 
 export default function Folders() {
   const { data: session, status } = useSession();
@@ -21,6 +22,8 @@ export default function Folders() {
   const [createError, setCreateError] = useState<string | null>(null);
   const [editingFolder, setEditingFolder] = useState<FolderDto | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [deletingFolder, setDeletingFolder] = useState<FolderDto | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     if (status === "authenticated" && session?.accessToken) {
@@ -117,6 +120,21 @@ export default function Folders() {
     await fetchFolders(currentPage);
   };
 
+  const handleOpenDeleteModal = (folder: FolderDto, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDeletingFolder(folder);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setDeletingFolder(null);
+  };
+
+  const handleDeleteFolder = async () => {
+    await fetchFolders(currentPage);
+  };
+
   if (status === "loading") {
     return (
       <div className="flex-1 flex items-center justify-center py-20 px-4">
@@ -195,26 +213,47 @@ export default function Folders() {
                   className="relative px-6 py-8 bg-slate-900 border-2 border-slate-800 hover:border-orange-500 text-white text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-black"
                   aria-label={`Folder: ${folder.name}`}
                 >
-                  <h2 className="text-xl font-semibold pr-8">{folder.name}</h2>
-                  <button
-                    onClick={(e) => handleOpenEditModal(folder, e)}
-                    className="absolute top-4 right-4 text-slate-400 hover:text-orange-500 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-black p-1 z-10"
-                    aria-label={`Edit folder: ${folder.name}`}
-                  >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                  <h2 className="text-xl font-semibold pr-16">{folder.name}</h2>
+                  <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+                    <button
+                      onClick={(e) => handleOpenDeleteModal(folder, e)}
+                      className="text-red-500 hover:text-red-400 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-black p-1"
+                      aria-label={`Delete folder: ${folder.name}`}
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                      />
-                    </svg>
-                  </button>
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={(e) => handleOpenEditModal(folder, e)}
+                      className="text-slate-400 hover:text-orange-500 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-black p-1"
+                      aria-label={`Edit folder: ${folder.name}`}
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                        />
+                      </svg>
+                    </button>
+                  </div>
                 </button>
               ))}
             </div>
@@ -356,6 +395,18 @@ export default function Folders() {
           folderId={editingFolder.id}
           accessToken={session?.accessToken || ""}
           folder={editingFolder}
+        />
+      )}
+
+      {/* Delete Folder Modal */}
+      {deletingFolder && (
+        <DeleteFolderModal
+          isOpen={isDeleteModalOpen}
+          onClose={handleCloseDeleteModal}
+          onSuccess={handleDeleteFolder}
+          folderId={deletingFolder.id}
+          accessToken={session?.accessToken || ""}
+          folder={deletingFolder}
         />
       )}
     </div>
