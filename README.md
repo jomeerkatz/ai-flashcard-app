@@ -1,5 +1,3 @@
-I'll search through our past conversations to gather more context about your project before creating the README.Perfect! Now I have all the context I need. Let me create a professional README that will impress both HR and engineers for your junior Spring Boot position in Hamburg.
-
 # AI Flashcards - Intelligent Spaced Repetition Learning System
 
 > A full-stack flashcard learning application inspired by Anki, featuring AI-powered card generation and an intelligent three-tier difficulty system. Built with modern Java Spring Boot backend and Next.js frontend.
