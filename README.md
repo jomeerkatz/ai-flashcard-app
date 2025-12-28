@@ -20,6 +20,8 @@
 AI Flashcards is a comprehensive learning application that demonstrates production-ready Spring Boot development practices. The application combines traditional flashcard learning with modern AI capabilities, showcasing clean architecture, comprehensive testing strategies, and secure authentication patterns.
 
 **Key Achievement:** This project emphasizes **test-driven development** with full coverage across all layers - a critical skill often missing in junior developer portfolios and highly valued by Hamburg tech companies.
+<img width="1065" height="791" alt="image" src="https://github.com/user-attachments/assets/2b9e2912-6b2a-4b40-80cd-477457af3d8f" />
+
 
 ### Why This Project Stands Out
 
